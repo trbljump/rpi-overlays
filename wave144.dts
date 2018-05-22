@@ -69,6 +69,7 @@
                 height = <132> ;
                 custom = <1> ;
                 debug = <0>;
+		bgr = <1> ;
 
                 init = <
                     0x1000001                       // SWRESET
@@ -131,6 +132,7 @@
     } ;
  
     __overrides__ {
+	bgr = <&wave144>, "bgr:0";
         debug = <&wave144>,"debug:0";
         custom =    <&wave144>,"custom:0";
     } ;
