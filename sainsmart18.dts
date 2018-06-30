@@ -1,0 +1,139 @@
+/*
+ * Device Tree Overlay for Waveshare 1.44inch LCD HAT
+ *
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2835", "brcm,bcm2708", "brcm,bcm2709";
+
+    fragment@0 {
+        target = <&spi0>;
+        __overlay__ {
+            status = "okay";
+
+            spidev@0{
+            status = "disabled";
+            };
+
+            spidev@1{
+            status = "disabled";
+            };
+        };
+    };
+
+    fragment@1 {
+        target = <&gpio>;
+            __overlay__ {
+                lcd_pins: lcd_pins {
+                    brcm,pins = <27 25 24>;
+                    brcm,function = <1 1 1>;
+                } ;
+                key_pins: key_pins {
+                    brcm,pins = <21 20 16> ;
+                    brcm,pull = <2 2 2> ;
+                    brcm,function = <0 0 0> ;
+                } ;
+                joy_pins: joy_pins {
+                    brcm,pins = <26 19 13 6 5> ;
+                    brcm,pull = <2 2 2 2 2> ;
+                    brcm,function = <0 0 0 0 0> ;
+                } ;
+            } ;
+       } ;
+
+
+    fragment@2 {
+        target = <&spi0>;
+        __overlay__ {
+            /* needed to avoid dtc warning */
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            wave144: wave144@0{
+                compatible = "sitronix,st7735r";
+                reg = <0>;
+                pinctrl-names = "default";
+                pinctrl-0 = <&lcd_pins> ;
+
+                spi-max-frequency = <40000000>;
+                rotate = <90> ;
+                fps = <20> ;
+                buswidth = <8>;
+                reset-gpios = <&gpio 27 0>;
+                dc-gpios = <&gpio 25 0>;
+                led-gpios = <&gpio 24 1>;       
+                width = <132> ;
+                height = <132> ;
+                custom = <1> ;
+                debug = <0>;
+		bgr = <1> ;
+
+                init = <
+                    0x1000001                       // SWRESET
+                    0x2000080
+                    0x1000011                       // SLPOUT
+                    0x2000200
+                    0x10000b1 0x01 0x2c 0x2d        // FRMCTR1  
+                    0x10000b2 0x01 0x2c 0x2d        // FRMCTR2
+                    0x10000b3 0x01 0x2c 0x2d 0x01 0x2c 0x2d // FRMCTR3
+                    0x10000b4 0x07                  // Display inversion control
+                    0x10000c0 0xa2 0x02 0x84 0xc1 0xc5 // Power control
+                    0x10000c2 0x0a 0x00             // Op Amp
+                    0x10000c3 0x8a 0x2a 
+                    0x10000c4 0x8a 0xee 
+                    0x10000c5 0x0e
+                    
+                    // Gamma
+                    0x10000e0 0x0f 0x1a 0x0f 0x18 0x2f 0x28 0x20 0x22 0x1f 0x1b 0x23 0x37 0x00 0x07 0x02 0x10
+                    0x10000e1 0x0f 0x1a 0x0f 0x18 0x2f 0x28 0x20 0x22 0x1f 0x1b 0x23 0x37 0x00 0x07 0x02 0x10
+    
+                    0x10000f0 0x01
+                    0x10000f6 0x00
+                    0x100003a 0x05                  // COLMOD 5 (16bpp)
+                    0x1000020                       // INVOFF
+                    0x1000029                       // DISPON
+                    0x2000080
+                    0x1000013                       // NORON
+                    0x2000010
+                > ;
+            } ;
+        } ;
+    } ;
+
+    fragment@3 {
+        target-path = "/soc" ;
+        __overlay__ {
+            wave144_keys: wave144_keys@0 {
+                compatible = "gpio-keys" ;
+                #address-cells = <1>;
+                #size-cells = <0>;
+                pinctrl-names = "default" ;
+                pinctrl-0 = <&key_pins> ;
+                key@1 {
+                    label = "KEY1";
+                    linux,code = <30>;
+                    gpios = <&gpio 21 1> ;
+                } ;
+                key@2 {
+                    label = "KEY2";
+                    linux,code = <48>;
+                    gpios = <&gpio 20 1> ;
+                } ;
+                key@3 {
+                     label = "KEY3";
+                     linux,code = <46>;
+                     gpios = <&gpio 16 1> ;
+                } ;
+            };
+        } ;
+    } ;
+ 
+    __overrides__ {
+	bgr = <&wave144>, "bgr:0";
+        debug = <&wave144>,"debug:0";
+        custom =    <&wave144>,"custom:0";
+    } ;
+} ;
