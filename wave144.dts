@@ -102,34 +102,6 @@
             } ;
         } ;
     } ;
-
-    fragment@3 {
-        target-path = "/soc" ;
-        __overlay__ {
-            wave144_keys: wave144_keys@0 {
-                compatible = "gpio-keys" ;
-                #address-cells = <1>;
-                #size-cells = <0>;
-                pinctrl-names = "default" ;
-                pinctrl-0 = <&key_pins> ;
-                key@1 {
-                    label = "KEY1";
-                    linux,code = <30>;
-                    gpios = <&gpio 21 1> ;
-                } ;
-                key@2 {
-                    label = "KEY2";
-                    linux,code = <48>;
-                    gpios = <&gpio 20 1> ;
-                } ;
-                key@3 {
-                     label = "KEY3";
-                     linux,code = <46>;
-                     gpios = <&gpio 16 1> ;
-                } ;
-            };
-        } ;
-    } ;
  
     __overrides__ {
 	bgr = <&wave144>, "bgr:0";
